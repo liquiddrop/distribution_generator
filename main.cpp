@@ -1,0 +1,153 @@
+#include "DistributionData.h"
+#include "GnuPlotter.h"
+#include "boost/date_time/gregorian/gregorian.hpp"
+
+#include <iostream>
+#include <string>
+#include <sstream>
+
+using namespace std;
+
+namespace  {
+    template <class T>
+    void printData(const string &label, const T &data)
+    {
+        cout << " " << label << ":  ";
+        for (auto i : data)
+        {
+            cout << i << " ";
+        }
+        cout << endl;
+    }
+}
+
+void printUsage(){
+            cout << "Input was not correct the accepted input formats are:" << endl;
+            cout << "<Distribution Type> <number of points to generate> <parameters> <output file name>" << endl;
+            cout << "Distribution Types, parameters" << endl;
+            cout << "Gaussian-G, <mean> <sigma>" << endl;
+            cout << "Exponential-E, <rate>" << endl;
+            cout << "ChiSquared-C, <degrees of freedom>"  << endl;
+            cout << "LogNormal-L, <mean> <sigma>" << endl;
+            cout << "output types are csv or gp (csv and gnu plot commands)" << endl;
+            cout << "Example Gaussian with 100 point generated with mean of 5 and sigma of 2, output file name example" << endl;
+            cout << "G 100 5 2 example" << endl;
+}
+
+using namespace boost::gregorian;
+
+std::vector<string> generateDateVector(int count)
+{
+    vector<string> outputVector;
+    day_iterator day_itr(date(day_clock::local_day()));
+    for (int i=0; i<count; ++i)
+    {
+        outputVector.push_back(to_iso_extended_string(*day_itr));
+        ++day_itr;
+    }
+    return outputVector;
+}
+
+int main()
+{
+    /*
+    DistributionData dData;
+    auto gdata = dData.gaussianData(150, 5, 2);
+    printData("gaussian data", gdata);
+
+    auto edata = dData.exponentialData(10, 4);
+    printData("exponential data", edata);
+
+    auto kdata = dData.chiSquaredData(10, 5);
+    printData("chi squared data", kdata);
+
+    auto ldata = dData.logNormalData(10, 8, 2);
+    printData("log normal data", ldata);
+
+    GnuPlotter plotter("test.csv");
+    plotter.setHeaders("Date", "Price");
+
+    vector<string> xdata;
+    vector<double> ydata;
+    ydata = (vector<double>)gdata;
+    day_iterator day_itr(date(day_clock::local_day()));
+    for (int i=0; i<150; ++i)
+    {
+        xdata.push_back(to_iso_extended_string(*day_itr));
+        ++day_itr;
+    }
+    plotter.setData(xdata, ydata);
+    plotter.csvWrite();
+    plotter.generateCmds("testcmds.gp");
+    */
+
+    std::string inputString, outputFileCsv, outputFileGP;
+    char firstInput;
+    int numPoints=0, mean=0, sigma=0, rate=0, degOfFreedom=0;
+    bool quit = false, generateData = false;
+    vector<string> xdata;
+    vector<double> ydata;
+    DistributionData dData;
+
+    while(1)
+    {
+        if(cin >> firstInput)
+        {
+            switch(firstInput){
+            case 'G':
+                cin >> numPoints >> mean >> sigma;
+                getline(cin, inputString);
+                ydata = dData.gaussianData(numPoints, mean, sigma);
+                outputFileCsv = inputString + ".csv";
+                generateData=true;
+                break;
+            case 'E':
+                cin >> numPoints >> rate;
+                getline(cin, inputString);
+                ydata = dData.exponentialData(numPoints, rate);
+                generateData=true;
+                break;
+            case 'C':
+                cin >> numPoints >> degOfFreedom;
+                getline(cin, inputString);
+                ydata = dData.chiSquaredData(numPoints, degOfFreedom);
+                generateData=true;
+                break;
+            case 'L':
+                cin >> numPoints >> mean >> sigma;
+                getline(cin, inputString);
+                ydata = dData.logNormalData(numPoints, mean, sigma);
+                generateData=true;
+                break;
+            case 'Q':
+                quit=true;
+                break;
+            default:
+                printUsage();
+            }
+            if(quit)
+            {
+                break;
+            }
+            else
+            {
+                if(generateData)
+                {
+                    GnuPlotter plotter(inputString + ".csv");
+                    plotter.setHeaders("Date", "Price");
+                    xdata = generateDateVector(numPoints);
+                    plotter.setData(xdata, ydata);
+                    plotter.csvWrite();
+                    plotter.generateCmds(inputString + ".gp");
+                    generateData = false;
+                }
+            }
+        }
+        else
+        {
+            printUsage();
+        }
+    }
+
+    return 0;
+}
