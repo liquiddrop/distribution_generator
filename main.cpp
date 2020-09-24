@@ -29,9 +29,9 @@ void printUsage(){
             cout << "Exponential-E, <rate>" << endl;
             cout << "ChiSquared-C, <degrees of freedom>"  << endl;
             cout << "LogNormal-L, <mean> <sigma>" << endl;
-            cout << "output types are csv or gp (csv and gnu plot commands)" << endl;
             cout << "Example Gaussian with 100 point generated with mean of 5 and sigma of 2, output file name example" << endl;
             cout << "G 100 5 2 example" << endl;
+            cout << "Enter 'Q' to quit" << endl;
 }
 
 using namespace boost::gregorian;
@@ -50,37 +50,6 @@ std::vector<string> generateDateVector(int count)
 
 int main()
 {
-    /*
-    DistributionData dData;
-    auto gdata = dData.gaussianData(150, 5, 2);
-    printData("gaussian data", gdata);
-
-    auto edata = dData.exponentialData(10, 4);
-    printData("exponential data", edata);
-
-    auto kdata = dData.chiSquaredData(10, 5);
-    printData("chi squared data", kdata);
-
-    auto ldata = dData.logNormalData(10, 8, 2);
-    printData("log normal data", ldata);
-
-    GnuPlotter plotter("test.csv");
-    plotter.setHeaders("Date", "Price");
-
-    vector<string> xdata;
-    vector<double> ydata;
-    ydata = (vector<double>)gdata;
-    day_iterator day_itr(date(day_clock::local_day()));
-    for (int i=0; i<150; ++i)
-    {
-        xdata.push_back(to_iso_extended_string(*day_itr));
-        ++day_itr;
-    }
-    plotter.setData(xdata, ydata);
-    plotter.csvWrite();
-    plotter.generateCmds("testcmds.gp");
-    */
-
     std::string inputString, outputFileCsv, outputFileGP;
     char firstInput;
     int numPoints=0, mean=0, sigma=0, rate=0, degOfFreedom=0;
